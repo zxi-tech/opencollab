@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\WorkspaceController;
 use App\Http\Controllers\Api\V1\MessageController;
+use App\Http\Controllers\Api\V1\ConversationController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -32,6 +33,8 @@ Route::prefix('v1')->group(function () {
             Route::post('/', [WorkspaceController::class, 'store']); // Membuat workspace baru
             Route::post('/{workspace}/members', [WorkspaceController::class, 'addMember']);
             Route::post('/{workspace}/messages', [MessageController::class, 'store']);
+            Route::get('/{workspace}/conversations', [ConversationController::class, 'index']);
+            Route::get('/{workspace}/conversations/{conversation}/messages', [ConversationController::class, 'messages']);
         });
     });
 

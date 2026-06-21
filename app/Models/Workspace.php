@@ -45,4 +45,12 @@ class Workspace extends Model
                     ->withPivot('role')
                     ->withTimestamps();
     }
+
+    /**
+     * Get the conversations for the workspace.
+     */
+    public function conversations()
+    {
+        return $this->hasMany(Conversation::class);
+    }
 }
