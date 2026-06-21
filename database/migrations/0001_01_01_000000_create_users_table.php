@@ -13,11 +13,27 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
+            $table->uuid('uuid')->unique();
             $table->string('name');
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+
+            // Profile
+            $table->string('avatar')->nullable();
+            $table->enum('status', ['online', 'offline', 'away', 'busy'])->default('offline');
+            $table->string('status_message')->nullable();
+            $table->string('timezone')->nullable();
+            $table->string('locale', 10)->default('en');
+            $table->timestamp('last_seen_at')->nullable();
+
+            // Two Factor Authentication
+            $table->text('two_factor_secret')->nullable();
+            $table->text('two_factor_recovery_codes')->nullable();
+            $table->timestamp('two_factor_confirmed_at')->nullable();
+
             $table->rememberToken();
+            $table->softDeletes();
             $table->timestamps();
         });
 
@@ -27,6 +43,7 @@ return new class extends Migration
             $table->timestamp('created_at')->nullable();
         });
 
+        // Session Management (used for the "active sessions" profile feature)
         Schema::create('sessions', function (Blueprint $table) {
             $table->string('id')->primary();
             $table->foreignId('user_id')->nullable()->index();
@@ -42,8 +59,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('users');
-        Schema::dropIfExists('password_reset_tokens');
         Schema::dropIfExists('sessions');
+        Schema::dropIfExists('password_reset_tokens');
+        Schema::dropIfExists('users');
     }
 };
