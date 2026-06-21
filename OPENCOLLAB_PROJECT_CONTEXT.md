@@ -28,9 +28,9 @@
 
 ## 2. Current Development Status
 
-- **Current Phase**: Phase 4 — Messaging Backend
-- **Current Module**: Planning Conversations & Messages architecture
-- **Progress Summary**: Phase 1 (DB), Phase 2 (Auth), and Phase 3 (Workspaces) are fully complete. The system now supports multi-tenancy via Workspaces. Moving into Phase 4 to build the core messaging engine.
+- **Current Phase**: Phase 5 — Channels
+- **Current Module**: Planning Public & Private Channels architecture
+- **Progress Summary**: Phase 1 to Phase 4 are fully complete. The core Messaging Engine for Direct Messages (DMs) is active. Moving into Phase 5 to build workspace-wide Channels.
 
 ---
 
@@ -41,6 +41,7 @@
 | **Phase 1 — Project Foundation** | Context doc, ERD, and 28 migrations generated and successfully executed against MySQL 8. |
 | **Phase 2 — Authentication & Authorization** | Login & Register API completed using Clean Architecture. Sanctum configured. Spatie Permission configured with Workspace Teams. |
 | **Phase 3 — Workspace System** | Create Workspace and Add Member API implemented. Integrated with Spatie Roles (`Owner`, `Member`). |
+| **Phase 4 — Messaging Backend** | Direct Messages (DM) engine built. `SendMessage`, `GetConversations`, and `GetMessages` API implemented using polymorphic relationships. |
 
 ---
 
@@ -48,7 +49,7 @@
 
 | Module | Notes |
 |---|---|
-| Phase 4 — Messaging Backend | Initial setup for `Conversations`, `Messages`, and `Attachments` repositories and services (no realtime yet). |
+| Phase 5 — Channels (Public/Private) | Initial setup for `Channels` repository, services, and integrating polymorphic messages to channels. |
 
 ---
 
@@ -56,14 +57,13 @@
 
 Per the 12-phase roadmap, not yet started:
 
-1. **Phase 5** — Channels (Public/Private)
-2. **Phase 6** — Realtime Infrastructure (Redis, Laravel Reverb, Presence, Realtime Notifications)
-3. **Phase 7** — Meetings (WebRTC)
-4. **Phase 8** — Storage System (Local → MinIO)
-5. **Phase 9** — Task Management (Boards, Tasks, Comments)
-6. **Phase 10** — Search (Laravel Scout + Meilisearch)
-7. **Phase 11** — Dockerization (Dockerfile, Docker Compose, Queue Worker, Scheduler)
-8. **Phase 12** — Frontend (Inertia.js, React, TypeScript, Tailwind CSS)
+1. **Phase 6** — Realtime Infrastructure (Redis, Laravel Reverb, Presence, Realtime Notifications)
+2. **Phase 7** — Meetings (WebRTC)
+3. **Phase 8** — Storage System (Local → MinIO)
+4. **Phase 9** — Task Management (Boards, Tasks, Comments)
+5. **Phase 10** — Search (Laravel Scout + Meilisearch)
+6. **Phase 11** — Dockerization (Dockerfile, Docker Compose, Queue Worker, Scheduler)
+7. **Phase 12** — Frontend (Inertia.js, React, TypeScript, Tailwind CSS)
 
 ---
 
@@ -98,4 +98,5 @@ Per the 12-phase roadmap, not yet started:
 | Date | Change |
 |---|---|
 | 2026-06-21 | Phase 1 & 2 Completed: Core DB migrations, Auth (Sanctum), and Clean Architecture setup. |
-| 2026-06-21 | Phase 3 Completed: Implemented Workspace System (Create Workspace, Add Members) with Spatie multi-tenancy roles. |
+| 2026-06-21 | Phase 3 Completed: Implemented Workspace System with Spatie multi-tenancy roles. |
+| 2026-06-21 | Phase 4 Completed: Messaging backend for Direct Messages implemented successfully. |
