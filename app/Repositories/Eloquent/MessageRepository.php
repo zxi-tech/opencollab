@@ -47,4 +47,13 @@ class MessageRepository implements MessageRepositoryInterface
             ->orderBy('created_at', 'asc')
             ->paginate($perPage);
     }
+
+    public function getChannelMessages(int $channelId, int $perPage = 50)
+    {
+        return Message::where('messageable_type', \App\Models\Channel::class)
+            ->where('messageable_id', $channelId)
+            ->with('sender:id,name,email')
+            ->orderBy('created_at', 'asc')
+            ->paginate($perPage);
+    }
 }

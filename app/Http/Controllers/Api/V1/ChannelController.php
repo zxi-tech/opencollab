@@ -7,6 +7,8 @@ use App\Http\Requests\Channel\CreateChannelRequest;
 use App\DTOs\Channel\CreateChannelDTO;
 use App\Services\ChannelService;
 use App\Models\Workspace;
+use App\Services\MessagingService;
+use App\Models\Channel;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -54,4 +56,34 @@ class ChannelController extends Controller
             'data' => $channel
         ], 201);
     }
+
+
+    public function messages(Request $request, Workspace $workspace, Channel $channel, MessagingService $messagingService): JsonResponse
+    {
+        // 1. Pastikan channel ini benar-benar milik workspace yang direquest
+        if ($channel->workspace_id !== $workspace->id) {
+            return response()->json(['message' => 'Channel tidak ditemukan di workspace ini.'], 404);
+        }
+
+        // 2. Pastikan user adalah anggota workspace
+        if (!$workspace->members()->where('user_id', $request->user()->id)->exists()) {
+            return response()->json(['message' => 'Akses ditolak.'], 403);
+        }
+
+        // 3. Jika channel ini private, pastikan user sudah bergabung di dalamnya
+        if ($channel->type === 'private') {
+            if (!$channel->members()->where('user_id', $request->user()->id)->exists()) {
+                return response()->json(['message' => 'Akses ditolak. Anda bukan anggota dari channel private ini.'], 403);
+            }
+        }
+
+        // Ambil riwayat pesan
+        $messages = $messagingService->getChannelMessages($channel->id);
+
+        return response()->json([
+            'message' => 'Berhasil mengambil riwayat pesan channel',
+            'data' => $messages
+        ]);
+    }
+
 }

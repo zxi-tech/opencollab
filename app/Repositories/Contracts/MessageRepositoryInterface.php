@@ -10,4 +10,5 @@ interface MessageRepositoryInterface
     public function findOrCreateDirectConversation(int $workspaceId, int $userA, int $userB): Conversation;
     public function createMessage(array $data): Message;
     public function getConversationMessages(int $conversationId, int $perPage = 50);
+    public function getChannelMessages(int $channelId, int $perPage = 50);
 }

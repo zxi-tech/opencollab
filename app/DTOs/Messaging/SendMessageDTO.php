@@ -6,7 +6,8 @@ readonly class SendMessageDTO
 {
     public function __construct(
         public int $workspaceId,
-        public int $receiverId, // ID user tujuan DM
         public string $content,
+        public ?int $receiverId = null, // Opsional jika kirim ke Channel
+        public ?int $channelId = null,  // Opsional jika kirim DM
     ) {}
 }

@@ -17,24 +17,28 @@ class MessageController extends Controller
 
     public function store(SendMessageRequest $request, Workspace $workspace): JsonResponse
     {
-        // Keamanan: Pastikan pengirim adalah bagian dari member di Workspace ini
+        // Keamanan utama: Pastikan pengirim adalah bagian dari member di Workspace ini
         if (!$workspace->members()->where('user_id', $request->user()->id)->exists()) {
             return response()->json([
                 'message' => 'Akses ditolak. Anda bukan anggota dari workspace ini.'
             ], 403);
         }
 
-        // Keamanan tambahan: Pastikan penerima juga merupakan member dari Workspace ini
-        if (!$workspace->members()->where('user_id', $request->validated('receiver_id'))->exists()) {
-            return response()->json([
-                'message' => 'Gagal mengirim pesan. Pengguna tujuan tidak ada di workspace ini.'
-            ], 422);
+        // Keamanan tambahan: Lakukan pengecekan ini HANYA JIKA ini adalah pesan DM
+        if ($request->filled('receiver_id')) {
+            if (!$workspace->members()->where('user_id', $request->validated('receiver_id'))->exists()) {
+                return response()->json([
+                    'message' => 'Gagal mengirim pesan. Pengguna tujuan tidak ada di workspace ini.'
+                ], 422);
+            }
         }
 
+        // DTO yang baru ini sudah fleksibel menerima receiverId ATAU channelId
         $dto = new SendMessageDTO(
             workspaceId: $workspace->id,
-            receiverId: $request->validated('receiver_id'),
-            content: $request->validated('content') // <--- INI YANG DIPERBAIKI (sebelumnya body:)
+            content: $request->validated('content'),
+            receiverId: $request->validated('receiver_id') ?? null,
+            channelId: $request->validated('channel_id') ?? null,
         );
 
         $message = $this->messagingService->sendMessage($dto, $request->user()->id);

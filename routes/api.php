@@ -42,6 +42,7 @@ Route::prefix('v1')->group(function () {
             // Phase 5: Channels (Ini posisi yang benar)
             Route::get('/{workspace}/channels', [ChannelController::class, 'index']);
             Route::post('/{workspace}/channels', [ChannelController::class, 'store']);
+            Route::get('/{workspace}/channels/{channel}/messages', [ChannelController::class, 'messages']);
         });
     });
 

@@ -4,9 +4,11 @@ namespace App\Services;
 
 use App\DTOs\Messaging\SendMessageDTO;
 use App\Models\Conversation;
+use App\Models\Channel;
 use App\Models\Message;
 use App\Repositories\Contracts\MessageRepositoryInterface;
 use Illuminate\Support\Facades\DB;
+use InvalidArgumentException;
 
 class MessagingService
 {
@@ -17,20 +19,33 @@ class MessagingService
     public function sendMessage(SendMessageDTO $dto, int $senderId): Message
     {
         return DB::transaction(function () use ($dto, $senderId) {
-            // 1. Cari atau buat percakapan direct antara sender dan receiver
-            $conversation = $this->messageRepository->findOrCreateDirectConversation(
-                $dto->workspaceId,
-                $senderId,
-                $dto->receiverId
-            );
+            $messageableType = null;
+            $messageableId = null;
 
-            // 2. Buat data pesan
+            // Jika ada channelId, arahkan relasi polymorphic ke Channel
+            if ($dto->channelId) {
+                $messageableType = Channel::class;
+                $messageableId = $dto->channelId;
+            } 
+            // Jika ada receiverId, cari/buat Conversation, arahkan ke Conversation
+            elseif ($dto->receiverId) {
+                $conversation = $this->messageRepository->findOrCreateDirectConversation(
+                    $dto->workspaceId,
+                    $senderId,
+                    $dto->receiverId
+                );
+                $messageableType = Conversation::class;
+                $messageableId = $conversation->id;
+            } else {
+                throw new InvalidArgumentException("Harus menyertakan receiver_id atau channel_id.");
+            }
+
             return $this->messageRepository->createMessage([
                 'workspace_id' => $dto->workspaceId,
-                'user_id' => $senderId, // <--- UBAH DI SINI (sebelumnya sender_id)
-                'messageable_type' => Conversation::class,
-                'messageable_id' => $conversation->id,
-                'body' => $dto->content,
+                'user_id' => $senderId,
+                'messageable_type' => $messageableType,
+                'messageable_id' => $messageableId,
+                'content' => $dto->content,
             ]);
         });
     }
@@ -38,5 +53,10 @@ class MessagingService
     public function getConversationMessages(int $conversationId)
     {
         return $this->messageRepository->getConversationMessages($conversationId);
+    }
+
+    public function getChannelMessages(int $channelId)
+    {
+        return $this->messageRepository->getChannelMessages($channelId);
     }
 }

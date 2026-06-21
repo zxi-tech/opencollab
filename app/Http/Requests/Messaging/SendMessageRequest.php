@@ -8,15 +8,17 @@ class SendMessageRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true; // Proteksi utama menggunakan middleware auth:sanctum
+        return true;
     }
 
     public function rules(): array
     {
         return [
-            // Memastikan receiver_id wajib diisi, berupa integer, dan terdaftar di tabel users
-            'receiver_id' => ['required', 'integer', 'exists:users,id'],
             'content' => ['required', 'string'],
+            // Wajib diisi JIKA channel_id kosong
+            'receiver_id' => ['required_without:channel_id', 'nullable', 'integer', 'exists:users,id'],
+            // Wajib diisi JIKA receiver_id kosong
+            'channel_id' => ['required_without:receiver_id', 'nullable', 'integer', 'exists:channels,id'],
         ];
     }
 }
