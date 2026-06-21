@@ -69,4 +69,11 @@ class User extends Authenticatable
             }
         });
     }
+
+    public function workspaces()
+    {
+        return $this->belongsToMany(Workspace::class, 'workspace_members')
+                    ->withPivot('role')
+                    ->withTimestamps();
+    }
 }
