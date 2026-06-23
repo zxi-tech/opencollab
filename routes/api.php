@@ -7,6 +7,11 @@ use App\Http\Controllers\Api\V1\ConversationController;
 use App\Http\Controllers\Api\V1\ChannelController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Broadcast; // <-- TAMBAHAN 1: Import Facade
+
+// <-- TAMBAHAN 2: Membuka gerbang otorisasi websocket untuk Sanctum
+// (Karena berada di api.php, rutenya otomatis menjadi /api/broadcasting/auth)
+Broadcast::routes(['middleware' => ['auth:sanctum']]); 
 
 // Semua rute dibungkus dalam prefix 'v1'
 Route::prefix('v1')->group(function () {
