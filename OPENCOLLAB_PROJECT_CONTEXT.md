@@ -29,9 +29,9 @@
 
 ## 2. Current Development Status
 
-- **Current Phase**: Phase 5 Completed (Moving to Realtime prep / Phase 6)
-- **Current Module**: Wrapping up Channels.
-- **Progress Summary**: Phase 1 to Phase 5 are fully complete. Polymorphic messaging engine is active and supports both Direct Messages and Workspace Channels.
+- **Current Phase**: Phase 6 Completed (Moving to Phase 7 / Frontend Realtime Integration)
+- **Current Module**: Laravel Echo & Frontend WebSocket implementation.
+- **Progress Summary**: Phase 1 to Phase 6 are fully complete. Polymorphic messaging engine is active and fully integrated with Laravel Reverb for realtime event broadcasting via secured Private Channels.
 
 ---
 
@@ -44,26 +44,28 @@
 | **Phase 3 — Workspace System**   | Create Workspace, Add Member API.                                                                          |
 | **Phase 4 — Messaging Backend**  | Direct Messages (DM) engine built.                                                                         |
 | **Phase 5 — Channels**           | Public/Private Channels API, refactored MessagingService to support polymorphic messages (Channels & DMs). |
+| **Phase 6 — Realtime Backend**   | Installed Laravel Reverb, configured `ShouldBroadcastNow` events, and secured WebSocket routes.            |
 
 ---
 
 ## 4. Planned Modules (Next Steps)
 
-1. **Phase 6** — Realtime Infrastructure (Redis, Laravel Reverb, Presence, Realtime Notifications)
-2. **Phase 7** — Meetings (WebRTC)
-3. **Phase 8** — Storage System (Local → MinIO)
-4. **Phase 9** — Task Management (Boards, Tasks, Comments)
-5. **Phase 10** — Search (Laravel Scout + Meilisearch)
-6. **Phase 11** — Dockerization
-7. **Phase 12** — Frontend (Inertia.js, React)
+1. **Phase 7** — Frontend Realtime Integration (Laravel Echo, Pusher-js, React)
+2. **Phase 8** — Meetings (WebRTC)
+3. **Phase 9** — Storage System (Local → MinIO)
+4. **Phase 10** — Task Management (Boards, Tasks, Comments)
+5. **Phase 11** — Search (Laravel Scout + Meilisearch)
+6. **Phase 12** — Dockerization
+7. **Phase 13** — Full Frontend UI Polish (Inertia.js, Tailwind)
 
 ---
 
 ## 5. Development History
 
-| Date       | Change                                                                             |
-| ---------- | ---------------------------------------------------------------------------------- |
-| 2026-06-21 | Phase 1 & 2 Completed: Core DB migrations, Auth (Sanctum).                         |
-| 2026-06-21 | Phase 3 Completed: Workspace System with Spatie multi-tenancy.                     |
-| 2026-06-21 | Phase 4 Completed: Messaging backend for DMs.                                      |
-| 2026-06-22 | Phase 5 Completed: Implemented Channels and upgraded polymorphic messaging engine. |
+| Date       | Change                                                                              |
+| ---------- | ----------------------------------------------------------------------------------- |
+| 2026-06-21 | Phase 1 & 2 Completed: Core DB migrations, Auth (Sanctum).                          |
+| 2026-06-21 | Phase 3 Completed: Workspace System with Spatie multi-tenancy.                      |
+| 2026-06-21 | Phase 4 Completed: Messaging backend for DMs.                                       |
+| 2026-06-22 | Phase 5 Completed: Implemented Channels and upgraded polymorphic messaging engine.  |
+| 2026-06-23 | Phase 6 Completed: Realtime backend setup with Laravel Reverb and Private Channels. |

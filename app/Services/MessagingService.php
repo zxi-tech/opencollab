@@ -7,6 +7,7 @@ use App\Models\Conversation;
 use App\Models\Channel;
 use App\Models\Message;
 use App\Repositories\Contracts\MessageRepositoryInterface;
+use App\Events\MessageSent;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
 
@@ -22,12 +23,10 @@ class MessagingService
             $messageableType = null;
             $messageableId = null;
 
-            // Jika ada channelId, arahkan relasi polymorphic ke Channel
             if ($dto->channelId) {
                 $messageableType = Channel::class;
                 $messageableId = $dto->channelId;
             } 
-            // Jika ada receiverId, cari/buat Conversation, arahkan ke Conversation
             elseif ($dto->receiverId) {
                 $conversation = $this->messageRepository->findOrCreateDirectConversation(
                     $dto->workspaceId,
@@ -37,16 +36,21 @@ class MessagingService
                 $messageableType = Conversation::class;
                 $messageableId = $conversation->id;
             } else {
-                throw new InvalidArgumentException("Harus menyertakan receiver_id atau channel_id.");
+                throw new \InvalidArgumentException("Harus menyertakan receiver_id atau channel_id.");
             }
 
-            return $this->messageRepository->createMessage([
+            $message = $this->messageRepository->createMessage([
                 'workspace_id' => $dto->workspaceId,
                 'user_id' => $senderId,
                 'messageable_type' => $messageableType,
                 'messageable_id' => $messageableId,
                 'content' => $dto->content,
             ]);
+
+            // UBAH BARIS INI (Hapus ->toOthers())
+            broadcast(new MessageSent($message)); 
+
+            return $message;
         });
     }
 
