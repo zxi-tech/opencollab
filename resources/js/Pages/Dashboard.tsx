@@ -1,6 +1,5 @@
 import { useEffect, useState, FormEvent, useRef } from 'react';
 import { Head, usePage, router } from '@inertiajs/react';
-import axios from 'axios';
 
 interface MessagePayload {
     id: number;
@@ -11,12 +10,23 @@ interface MessagePayload {
     };
 }
 
-export default function Dashboard() {
-    // 1. Ambil data user yang sedang login secara dinamis dari Laravel via Inertia
+// 1. Tambahkan Props untuk menerima data dinamis dari Laravel
+interface DashboardProps {
+    initialMessages?: MessagePayload[];
+    currentWorkspaceId: string | number;
+    currentChannelId: string | number;
+}
+
+export default function Dashboard({ 
+    initialMessages = [], 
+    currentWorkspaceId, 
+    currentChannelId 
+}: DashboardProps) {
+    
     const { auth } = usePage<any>().props;
     const currentUser = auth?.user;
 
-    const [messages, setMessages] = useState<MessagePayload[]>([]);
+    const [messages, setMessages] = useState<MessagePayload[]>(initialMessages);
     const [newMessage, setNewMessage] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     
@@ -26,31 +36,16 @@ export default function Dashboard() {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     };
 
+    // 2. Memicu ulang state jika user berpindah channel/workspace via URL
     useEffect(() => {
-        // Ambil riwayat pesan dari Database via API
-        const fetchHistory = async () => {
-            try {
-                // Axios akan otomatis menggunakan cookie session bawaan browser/Laravel
-                const response = await axios.get('/api/v1/workspaces/2/channels/2/messages');
-                
-                let history = [];
-                if (Array.isArray(response.data)) {
-                    history = response.data;
-                } else if (Array.isArray(response.data.data)) {
-                    history = response.data.data;
-                } else if (response.data?.data?.data && Array.isArray(response.data.data.data)) {
-                    history = response.data.data.data;
-                }
-                setMessages(history);
-            } catch (error) {
-                console.error("Gagal memuat riwayat pesan:", error);
-            }
-        };
+        setMessages(initialMessages);
+    }, [initialMessages, currentWorkspaceId, currentChannelId]);
 
-        fetchHistory();
-
-        // Berlangganan ke Reverb
-        const channel = (window as any).Echo.private('workspace.2.channel.2');
+    useEffect(() => {
+        // 3. Berlangganan ke Private Channel secara DINAMIS
+        const channelName = `workspace.${currentWorkspaceId}.channel.${currentChannelId}`;
+        const channel = (window as any).Echo.private(channelName);
+        
         channel.listen('MessageSent', (event: MessagePayload) => {
             setMessages((prev) => [...prev, event]);
         });
@@ -58,44 +53,42 @@ export default function Dashboard() {
         return () => {
             channel.stopListening('MessageSent');
         };
-    }, []);
+    }, [currentWorkspaceId, currentChannelId]); 
 
     useEffect(() => {
         scrollToBottom();
     }, [messages]);
 
-    // Fungsi kirim pesan menggunakan Engine Utama Inertia (Bukan Axios manual)
     const handleSendMessage = (e: FormEvent) => {
         e.preventDefault();
         if (!newMessage.trim()) return;
 
-        // Pastikan URL sesuai dengan rute POST di web.php
-        router.post('/workspaces/2/messages', {
-            channel_id: 2,
+        // 4. URL POST dikirim secara dinamis sesuai workspace dan channel yang aktif di URL
+        router.post(`/workspaces/${currentWorkspaceId}/channels/${currentChannelId}/messages`, {
             content: newMessage
         }, {
             onStart: () => setIsSubmitting(true),
-            onSuccess: () => {
-                setNewMessage(''); // Kosongkan input jika berhasil
-            },
+            onSuccess: () => setNewMessage(''),
             onFinish: () => setIsSubmitting(false)
         });
     };
 
     return (
         <>
-            <Head title="Dashboard" />
+            {/* Title Browser Dinamis */}
+            <Head title={`Workspace ${currentWorkspaceId} - Channel ${currentChannelId}`} />
             
             <div className="min-h-screen bg-gray-100 p-8 flex flex-col items-center justify-center">
                 <div className="w-full max-w-3xl bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-200 flex flex-col h-[80vh]">
                     
-                    {/* Header */}
+                    {/* Header Dinamis */}
                     <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-6 text-white shrink-0 flex justify-between items-center">
                         <div>
                             <h1 className="text-2xl font-bold">OpenCollab Realtime</h1>
-                            <p className="text-blue-100 text-sm mt-1">Workspace 2 | Channel 2</p>
+                            <p className="text-blue-100 text-sm mt-1">
+                                Workspace {currentWorkspaceId} | Channel {currentChannelId}
+                            </p>
                         </div>
-                        {/* Menampilkan Nama User yang sedang login di pojok kanan atas */}
                         <div className="text-right">
                             <span className="text-xs bg-indigo-500 bg-opacity-50 px-3 py-1 rounded-full border border-indigo-400 block shadow-sm">
                                 🟢 {currentUser?.name || 'Guest Mode'}
@@ -108,11 +101,10 @@ export default function Dashboard() {
                         {messages.length === 0 ? (
                             <div className="flex flex-col items-center justify-center h-full text-gray-400 gap-2">
                                 <span className="text-4xl">📭</span>
-                                <p className="italic text-sm">Belum ada pesan di channel ini...</p>
+                                <p className="italic text-sm">Belum ada pesan di Workspace {currentWorkspaceId} Channel {currentChannelId}...</p>
                             </div>
                         ) : (
                             messages.map((msg, idx) => {
-                                // DETEKSI DINAMIS: Apakah ID pengirim sama dengan ID user yang sedang login saat ini?
                                 const isMe = msg.sender?.id === currentUser?.id; 
 
                                 return (
@@ -120,8 +112,8 @@ export default function Dashboard() {
                                         key={idx} 
                                         className={`p-3 rounded-lg shadow-sm max-w-[75%] ${
                                             isMe 
-                                            ? 'bg-indigo-600 text-white self-end rounded-br-none' // Sisi kanan jika pesan milik saya
-                                            : 'bg-white border border-gray-200 text-gray-800 self-start rounded-bl-none' // Sisi kiri jika milik orang lain
+                                            ? 'bg-indigo-600 text-white self-end rounded-br-none' 
+                                            : 'bg-white border border-gray-200 text-gray-800 self-start rounded-bl-none'
                                         }`}
                                     >
                                         {!isMe && (
@@ -144,7 +136,7 @@ export default function Dashboard() {
                                 type="text"
                                 value={newMessage}
                                 onChange={(e) => setNewMessage(e.target.value)}
-                                placeholder={`Ketik pesan sebagai ${currentUser?.name || 'Guest'}...`}
+                                placeholder={`Ketik pesan di Channel ${currentChannelId}...`}
                                 disabled={isSubmitting}
                                 className="flex-grow px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent disabled:bg-gray-100"
                                 autoComplete="off"
