@@ -37,7 +37,15 @@ class HandleInertiaRequests extends Middleware
     {
         return [
             ...parent::share($request),
-            //
+            
+            // Tambahkan blok auth ini untuk menyiarkan data user ke React
+            'auth' => [
+                'user' => $request->user() ? [
+                    'id' => $request->user()->id,
+                    'name' => $request->user()->name,
+                    'email' => $request->user()->email,
+                ] : null,
+            ],
         ];
     }
 }
