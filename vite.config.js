@@ -5,15 +5,9 @@ import react from '@vitejs/plugin-react';
 export default defineConfig({
     plugins: [
         laravel({
-            // Perhatikan ekstensi di bawah ini sudah berubah menjadi .tsx
-            input: ['resources/css/app.css', 'resources/js/app.tsx'],
+            input: ['resources/css/app.css', 'resources/js/app.jsx'], // CSS harus masuk ke input!
             refresh: true,
         }),
-        react(), // Daftarkan plugin React di sini
+        react(),
     ],
-    resolve: {
-        alias: {
-            '@': '/resources/js',
-        },
-    },
 });
