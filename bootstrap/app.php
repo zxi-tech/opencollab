@@ -17,6 +17,11 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->web(append: [
             \App\Http\Middleware\HandleInertiaRequests::class,
         ]);
+
+        // Menambahkan pengecualian CSRF untuk rute logout
+        $middleware->validateCsrfTokens(except: [
+            'logout', 
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

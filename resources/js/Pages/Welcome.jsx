@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Head, Link } from '@inertiajs/react';
 import { motion, AnimatePresence } from 'framer-motion';
+import CustomTitlebar from '@/Components/CustomTitlebar';
 
 // ==========================================
 // DATA STATIS
@@ -57,7 +58,9 @@ export default function Welcome() {
         <>
             <Head title="OpenCollab - Unified Workspace" />
 
-            <div className="min-h-screen bg-[#050505] text-white overflow-hidden relative font-sans [perspective:1000px]">
+            <div className="min-h-screen bg-[#050505] text-white overflow-hidden relative font-sans [perspective:1000px] pt-8">
+
+                <CustomTitlebar />
 
                 {/* Background Video Globe */}
                 <div className="absolute top-[-5%] md:top-[0%] left-1/2 -translate-x-1/2 w-full max-w-[900px] aspect-square opacity-30 pointer-events-none flex items-center justify-center mix-blend-screen z-0">

@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use App\Models\Message; 
 use App\Events\MessageSent;
@@ -12,14 +13,27 @@ Route::get('/', function () {
 });
 
 // 2. Rute Autentikasi (Placeholder untuk nanti)
+// Rute publik untuk halaman login Desktop
 Route::get('/login', function () {
-    auth()->loginUsingId(1); 
-    return redirect('/workspaces/2/channels/10');
+    // Kita arahkan Inertia untuk mencari di dalam folder Desktop
+    return Inertia::render('Desktop/Dashboard'); 
 })->name('login');
 
 Route::get('/register', function () {
     return inertia('Auth/Register'); 
 });
+
+Route::get('/messages', function () {
+    return Inertia::render('Desktop/Messages');
+})->name('messages');
+
+Route::post('/logout', function (Request $request) {
+    Auth::logout();
+    $request->session()->invalidate();
+    $request->session()->regenerateToken();
+    
+    return redirect('/login');
+})->name('logout');
 
 // 3. Rute Dashboard Chat Dinamis
 Route::middleware('auth')->group(function () {
